@@ -91,12 +91,6 @@
         </a>
     </li>
 
-    <li>
-        <a role="menuitem" tabindex="-1" href="#" data-clipboard-text="{posts.absolute_url}">
-            <i class="fa fa-fw fa-thumb-tack"></i> [[topic:pin]]
-        </a>
-    </li>
-
     <!-- IF postSharing.length -->
     <!-- IF config.loggedIn --><li class="divider"></li><!-- ENDIF config.loggedIn -->
     <li class="dropdown-header">[[topic:share_this_post]]</li>
@@ -106,6 +100,12 @@
             <a role="menuitem" component="share/{postSharing.id}" tabindex="-1" href="#"><span class="menu-icon"><i class="fa fa-fw {postSharing.class}"></i></span> {postSharing.name}</a>
         </li>
     {{{end}}}
+
+    <li>
+        <a role="menuitem" tabindex="-1" href="#" data-clipboard-text="{posts.absolute_url}">
+            <i class="fa fa-fw fa-thumb-tack"></i> [[topic:pin]]
+        </a>
+    </li>
 <!-- ENDIF !posts.deleted -->
 
 {{{ if posts.display_flag_tools }}}

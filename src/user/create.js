@@ -107,7 +107,7 @@ module.exports = function (User) {
             storePassword(userData.uid, data.password),
             User.updateDigestSetting(userData.uid, meta.config.dailyDigestFreq),
             //Added this to create an anonymous mode parameter
-            db.set('AnonymousMode', false)
+            db.set('mode', false)
         ]);
 
         if (userData.email && isFirstUser) {

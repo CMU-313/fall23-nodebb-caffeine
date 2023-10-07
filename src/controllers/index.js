@@ -373,3 +373,5 @@ Controllers.termsOfUse = async function (req, res, next) {
         termsOfUse: termsOfUse.postData.content,
     });
 };
+
+Controllers.poll = 

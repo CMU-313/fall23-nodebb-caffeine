@@ -104,3 +104,4 @@
     </div>
     <div component="post/replies/container"></div>
 </div>
+<script src="../../../src/user/anonymous.js"></script>

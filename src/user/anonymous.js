@@ -22,5 +22,5 @@ setAnonymousUsername();
 const anonymousButton = document.getElementById('anonymous-mode');
 anonymousButton.addEventListener('click', function () {
     mode = (mode === 'anonymous') ? user.getMode() : 'anonymous';
-    setAnonymousUsername(); // not sure if needed?
-});
+    setAnonymousUsername();
+})

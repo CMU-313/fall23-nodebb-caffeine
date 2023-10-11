@@ -54,6 +54,8 @@ module.exports = function (User) {
             joindate: timestamp,
             lastonline: timestamp,
             status: 'online',
+            //Added this to be consistent with other additions
+            mode: false,
         };
         ['picture', 'fullname', 'location', 'birthday'].forEach((field) => {
             if (data[field]) {
@@ -106,6 +108,8 @@ module.exports = function (User) {
             User.notifications.sendWelcomeNotification(userData.uid),
             storePassword(userData.uid, data.password),
             User.updateDigestSetting(userData.uid, meta.config.dailyDigestFreq),
+            //Added this to create an anonymous mode parameter
+            db.set('mode', false)
         ]);
 
         if (userData.email && isFirstUser) {

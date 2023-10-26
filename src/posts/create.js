@@ -19,8 +19,6 @@ module.exports = function (Posts) {
         const content = data.content.toString();
         const timestamp = data.timestamp || Date.now();
         const isMain = data.isMain || false;
-        //Added this as post param 
-        const mode = db.get(uid.mode);
 
         if (!uid && parseInt(uid, 10) !== 0) {
             throw new Error('[[error:invalid-uid]]');
@@ -37,8 +35,6 @@ module.exports = function (Posts) {
             tid: tid,
             content: content,
             timestamp: timestamp,
-            //Added anonymous parameter to post 
-            anonymous: mode,
         };
 
         if (data.toPid) {
@@ -67,8 +63,6 @@ module.exports = function (Posts) {
             groups.onNewPostMade(postData),
             addReplyTo(postData, timestamp),
             Posts.uploads.sync(postData.pid),
-            //Added an anonymous parameter for post creation 
-            db.set('anonymous', false),
         ]);
 
         result = await plugins.hooks.fire('filter:post.get', { post: postData, uid: data.uid });

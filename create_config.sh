@@ -1,25 +1,25 @@
 #!/bin/bash
 
 # Check that environment variables have been defined
-if [[ -z "${REDIS_HOST+x}" ]]; then
+if [[ -z "us1-wealthy-rhino-41526.upstash.io" ]]; then
   # var is not defined
   echo "Error: REDIS_HOST is not defined!"
   exit 1
 fi
 
-if [[ -z "${REDIS_PORT+x}" ]]; then
+if [[ -z "41526" ]]; then
   # var is not defined
   echo "Error: REDIS_PORT is not defined!"
   exit 1
 fi
 
-if [[ -z "${REDIS_PASSWORD+x}" ]]; then
+if [[ -z "aee6eb861d8240a0b1b70f49aec09262" ]]; then
   # var is not defined
   echo "Error: REDIS_PASSWORD is not defined!"
   exit 1
 fi
 
-if [[ -z "${DEPLOYMENT_URL+x}" ]]; then
+if [[ -z "https://fall23-nodebb-caffeine-q4slcgtxpa-uc.a.run.app" ]]; then
   # var is not defined
   echo "Error: DEPLOYMENT_URL is not defined!"
   exit 1

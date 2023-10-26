@@ -94,15 +94,6 @@ User.getStatus = function (userData) {
     return isOnline ? (userData.status || 'online') : 'offline';
 };
 
-//Adding this so that getMode function can be used elsewhere
-User.getMode = function (userData) {
-    if (userData.uid <= 0) {
-        return 'offline';
-    }
-    const anonymous = true;
-    return anonymous ? (userData.mode || true) : false;
-};
-
 User.getUidByUsername = async function (username) {
     if (!username) {
         return 0;

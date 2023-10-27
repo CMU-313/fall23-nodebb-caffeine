@@ -10,7 +10,7 @@ describe('Package install lib', () => {
     /**
      * Important:
      *   - The tests here have a beforeEach() run prior to each test, it resets
-     *     package.json and install/package.json back to identical states.
+     *      and install/package.json back to identical states.
      *   - Update `source` and `current` for testing.
      */
     describe('updatePackageFile()', () => {

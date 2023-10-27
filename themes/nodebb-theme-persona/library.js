@@ -1,5 +1,11 @@
 'use strict';
 
+const NodeBB = require('./lib/nodebb');
+const Config = require('./lib/config');
+const Sockets = require('./lib/sockets');
+const Hooks = require('./lib/hooks');
+const Scheduler = require('./lib/scheduler');
+
 const meta = require.main.require('./src/meta');
 const user = require.main.require('./src/user');
 const translator = require.main.require('./src/translator');
@@ -105,5 +111,4 @@ library.addUserToTopic = async function (hookData) {
 
     return hookData;
 };
-
 module.exports = library;

@@ -19,13 +19,6 @@ function walk(dir) {
 
 //files parsed into inital AST using esprima node library (esprima.org)
 function init() {
-    // let files = fs.readdirSync("./", { withFileTypes: true }); // change this to the dir you want
-    // files = files.filter(files => files.isFile()).map(files => files.name);
-    // let programs = [];
-    // for (let file of files) {
-    //     programs.push(fs.readFileSync("./" + file, "utf-8"));
-    // }
-
     // modify this according to which directory to test
     let programs = walk("/Users/vania/CMU/17313/fall23-nodebb-caffeine/src/api")
 

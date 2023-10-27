@@ -30,9 +30,9 @@ json_data=$(cat "/usr/src/app/config_template.json")
 
 # Update the JSON file with the environment variables
 json_data=$(jq --arg deployment_url "https://fall23-nodebb-caffeine-q4slcgtxpa-uc.a.run.app" '.url = $deployment_url' <<< "$json_data")
-json_data=$(jq --arg host "us1-wealthy-rhino-41526.upstash.iox" '.redis.host = $host' <<< "$json_data")
-json_data=$(jq --arg port "41526" '.redis.port = $port' <<< "$json_data")
-json_data=$(jq --arg password "aee6eb861d8240a0b1b70f49aec09262" '.redis.password = $password' <<< "$json_data")
+json_data=$(jq --arg host "gusc1-cool-turtle-30506.upstash.io" '.redis.host = $host' <<< "$json_data")
+json_data=$(jq --arg port "30506" '.redis.port = $port' <<< "$json_data")
+json_data=$(jq --arg password "f9c27ba6a7734df69853c35b927d529e" '.redis.password = $password' <<< "$json_data")
 
 # Write the updated JSON file to config.json
 echo "$json_data" > "/usr/src/app/config.json"

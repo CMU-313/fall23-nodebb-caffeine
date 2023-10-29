@@ -101,7 +101,7 @@ Posts.modifyPostByPrivilege = function (post, privileges) {
     }
 };
 
-//Added funciton to check post is anonymous or not 
+// Added funciton to check post is anonymous or not
 Posts.postIsAnonymous = async function (post) {
     return db.get(post.anonymous);
 };

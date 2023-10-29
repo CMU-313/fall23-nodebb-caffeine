@@ -1,8 +1,13 @@
 name: Homework 1 Check
 
 on:
+  push:
+    branches:
+      - '*'
+      - main
   pull_request:
     branches:
+      - '*'
       - main
 
 defaults:

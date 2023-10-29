@@ -38,7 +38,7 @@ module.exports = function (Posts) {
             content: content,
             timestamp: timestamp,
             //Added anonymous parameter to post 
-            anonymous: mode,
+            // anonymous: mode,
         };
 
         if (data.toPid) {

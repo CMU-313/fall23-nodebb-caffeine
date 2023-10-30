@@ -20,7 +20,7 @@ function walk(dir) {
 //files parsed into inital AST using esprima node library (esprima.org)
 function init() {
     // modify this according to which directory to test
-    let programs = walk("/Users/vania/CMU/17313/fall23-nodebb-caffeine/src/api")
+    let programs = walk("/Users/vania/CMU/17313/fall23-nodebb-caffeine/src/categories")
 
     let count = 0;
     for (let program of programs) {

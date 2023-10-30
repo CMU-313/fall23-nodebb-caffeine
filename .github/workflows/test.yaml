@@ -208,7 +208,7 @@ jobs:
 
       #Loading as an artifact 
       - name: Upload Plato report as artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: plato-report
-        path: report/
+        uses: actions/upload-artifact@v2
+        with:
+          name: plato-report
+          path: report/

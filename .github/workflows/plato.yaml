@@ -1,0 +1,38 @@
+name: Plato Report Generation
+
+on:
+  push:
+    branches:
+      - '*'
+      - main
+  pull_request:
+    branches:
+      - '*'
+      - main
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'  # Using Node.js v16 as per your test workflow
+
+    - name: Install Dependencies
+      run: npm install
+
+    # Generate Plato report
+    - name: Generate Plato report
+      run: npm run plato
+
+    # Upload the Plato report as an artifact
+    - name: Upload Plato report as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: plato-report
+        path: report/

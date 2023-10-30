@@ -202,13 +202,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
       
-      #Adding plato report generation step here
-      - name: Generate Plato report
-        run: npm run plato
+      # #Adding plato report generation step here
+      # - name: Generate Plato report
+      #   run: npm run plato
 
-      #Loading as an artifact 
-      - name: Upload Plato report as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: plato-report
-          path: report/
+      # #Loading as an artifact 
+      # - name: Upload Plato report as artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: plato-report
+      #     path: report/

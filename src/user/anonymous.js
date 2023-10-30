@@ -1,6 +1,11 @@
-const user = require('index.js');
+'use strict';
+
+const user = require('.');
+
+let document;
 // returns true if mode is on, false if not
-const mode = user.getMode()
+let mode;
+mode = user.getMode();
 
 // change username based on anonymous mode
 const setAnonymousUsername = () => {
@@ -20,7 +25,7 @@ setAnonymousUsername();
 
 // turn on anonymous mode if button is clicked
 const anonymousButton = document.getElementById('anonymous-mode');
-anonymousButton.addEventListener('click', function () {
+anonymousButton.addEventListener('click', () => {
     mode = (mode === 'anonymous') ? user.getMode() : 'anonymous';
     setAnonymousUsername();
-})
+});

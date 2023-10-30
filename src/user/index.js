@@ -94,7 +94,7 @@ User.getStatus = function (userData) {
     return isOnline ? (userData.status || 'online') : 'offline';
 };
 
-//Adding this so that getMode function can be used elsewhere
+// Adding this so that getMode function can be used elsewhere
 User.getMode = function (userData) {
     if (userData.uid <= 0) {
         return 'offline';

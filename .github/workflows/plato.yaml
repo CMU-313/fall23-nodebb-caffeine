@@ -81,13 +81,13 @@ jobs:
         run: |
           node app --setup="${SETUP}" --ci="${CI}"
 
-      # Generate Plato report
-    - name: Generate Plato report
-      run: npm run plato
+        # Generate Plato report
+      - name: Generate Plato report
+        run: npm run plato
 
-    # Upload the Plato report as an artifact
-    - name: Upload Plato report as artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: plato-report
-        path: report/
+      # Upload the Plato report as an artifact
+      - name: Upload Plato report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: plato-report
+          path: report/

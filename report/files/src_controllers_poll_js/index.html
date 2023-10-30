@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - src/controllers/poll.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>src/controllers/poll.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">79.81</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">301</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">64.51</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">3.06</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">&#039;use strict&#039;;
+
+const async = require(&#039;async&#039;);
+
+const NodeBB = require(&#039;./nodebb&#039;);
+
+const Vote = require(&#039;./vote&#039;);
+const Scheduler = require(&#039;./scheduler&#039;);
+
+(function (Poll) {
+    const POLL_DATA_VERSION = 2;
+
+    Poll.add = function (pollData, postData, callback) {
+        NodeBB.db.incrObjectField(&#039;global&#039;, &#039;nextPollId&#039;, (err, pollId) =&gt; {
+            if (err) {
+                return callback(err);
+            }
+
+            const poll = {
+                pollId: pollId,
+                uid: postData.editor || postData.uid,
+                tid: postData.tid,
+                pid: postData.pid,
+                deleted: 0,
+                ended: 0,
+                timestamp: postData.edited || postData.timestamp,
+                version: POLL_DATA_VERSION,
+            };
+
+            pollData.options = pollData.options.map((val, i) =&gt; ({
+                id: i,
+                title: val,
+            }));
+
+            // async this bitch up
+            async.parallel([
+                async.apply(async.each, pollData.options, (option, next) =&gt; {
+                    async.series([
+                        async.apply(NodeBB.db.setObject, `poll:${pollId}:options:${option.id}`, option),
+                        async.apply(NodeBB.db.setAdd, `poll:${pollId}:options`, option.id),
+                    ], next);
+                }),
+                async.apply(NodeBB.db.setObject, `poll:${pollId}`, poll),
+                async.apply(NodeBB.db.setObject, `poll:${pollId}:settings`, pollData.settings),
+                async.apply(NodeBB.db.listAppend, &#039;polls&#039;, pollId),
+                async.apply(NodeBB.db.setObjectField, `topic:${poll.tid}`, &#039;pollId&#039;, pollId),
+            ], (err) =&gt; {
+                if (err) {
+                    return callback(err);
+                }
+
+                // Check if this poll is scheduled to end
+                if (parseInt(pollData.settings.end, 10) &gt; 0) {
+                    Poll.schedule(pollId);
+                }
+
+                return callback(null, pollId);
+            });
+        });
+    };
+
+    Poll.get = function (pollId, uid, withVotes, callback) {
+        async.parallel({
+            info: function (next) {
+                Poll.getInfo(pollId, next);
+            },
+            options: function (next) {
+                Poll.getOptions(pollId, withVotes, next);
+            },
+            settings: function (next) {
+                Poll.getSettings(pollId, next);
+            },
+            hasVoted: function (next) {
+                if (uid) {
+                    Vote.hasUidVoted(uid, pollId, next);
+                } else {
+                    next(null, false);
+                }
+            },
+            vote: function (next) {
+                if (uid) {
+                    Vote.getUidVote(uid, pollId, next);
+                } else {
+                    next(null, null);
+                }
+            },
+        }, (err, pollData) =&gt; {
+            if (err) {
+                return callback(err);
+            }
+            pollData.options.forEach((option) =&gt; {
+                const percentage = ((option.voteCount / pollData.info.voteCount) * 100).toFixed(0);
+                option.percentage = isNaN(percentage) ? 0 : percentage;
+            });
+            pollData.settings.disallowVoteUpdate = parseInt(pollData.settings.disallowVoteUpdate, 10);
+            callback(null, pollData);
+        });
+    };
+
+    Poll.getPollIdByTid = function (tid, callback) {
+        NodeBB.db.getObjectField(`topic:${tid}`, &#039;pollId&#039;, callback);
+    };
+
+    Poll.getPollIdByPid = function (pid, callback) {
+        NodeBB.db.getObjectField(`post:${pid}`, &#039;pollId&#039;, callback);
+    };
+
+    Poll.getInfo = function (pollId, callback) {
+        async.parallel({
+            poll: function (next) {
+                NodeBB.db.getObject(`poll:${pollId}`, next);
+            },
+            voteCount: function (next) {
+                Poll.getVoteCount(pollId, next);
+            },
+        }, (err, results) =&gt; {
+            if (err) {
+                return callback(err);
+            }
+            results.poll.voteCount = parseInt(results.voteCount, 10) || 0;
+            callback(null, results.poll);
+        });
+    };
+
+    Poll.getOptions = function (pollId, withVotes, callback) {
+        if (typeof withVotes === &#039;function&#039;) {
+            callback = withVotes;
+            withVotes = false;
+        }
+
+        NodeBB.db.getSetMembers(`poll:${pollId}:options`, (err, options) =&gt; {
+            if (err) {
+                return callback(err);
+            }
+            // sort options according to option id. option id are supposed to preseve the order as in Poll.add(),
+            // when the user create the poll
+            options.sort((a, b) =&gt; a - b);
+            async.map(options, (option, next) =&gt; {
+                Poll.getOption(pollId, option, withVotes, next);
+            }, callback);
+        });
+    };
+
+    Poll.getOption = function (pollId, option, withVotes, callback) {
+        async.parallel({
+            option: function (next) {
+                NodeBB.db.getObject(`poll:${pollId}:options:${option}`, next);
+            },
+            votes: function (next) {
+                if (withVotes) {
+                    NodeBB.db.getSortedSetRange(`poll:${pollId}:options:${option}:votes`, 0, -1, next);
+                } else {
+                    next();
+                }
+            },
+            voteCount: function (next) {
+                Poll.getOptionVoteCount(pollId, option, next);
+            },
+        }, (err, results) =&gt; {
+            if (err) {
+                return callback(err);
+            }
+            if (results.votes) {
+                results.option.votes = results.votes;
+            }
+            results.option.voteCount = parseInt(results.voteCount, 10) || 0;
+
+            callback(null, results.option);
+        });
+    };
+
+    Poll.getVotersCount = function (pollId, callback) {
+        NodeBB.db.sortedSetCard(`poll:${pollId}:voters`, callback);
+    };
+
+    Poll.getVoteCount = function (pollId, callback) {
+        NodeBB.db.getSetMembers(`poll:${pollId}:options`, (err, options) =&gt; {
+            if (err) {
+                console.error(err);
+            }
+
+            async.map(options, (option, next) =&gt; {
+                Poll.getOptionVoteCount(pollId, option, next);
+            }, (err, results) =&gt; {
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, results.reduce((a, b) =&gt; a + b, 0));
+            });
+        });
+    };
+
+    Poll.getOptionVoteCount = function (pollId, option, callback) {
+        NodeBB.db.sortedSetCard(`poll:${pollId}:options:${option}:votes`, callback);
+    };
+
+    Poll.hasOption = function (pollId, option, callback) {
+        NodeBB.db.isSetMember(`poll:${pollId}:options`, option, callback);
+    };
+
+    Poll.hasOptions = function (pollId, options, callback) {
+        NodeBB.db.isSetMembers(`poll:${pollId}:options`, options, callback);
+    };
+
+    Poll.getSettings = function (pollId, callback) {
+        NodeBB.db.getObject(`poll:${pollId}:settings`, callback);
+    };
+
+    Poll.isDeleted = function (pollId, callback) {
+        Poll.getField(pollId, &#039;deleted&#039;, (err, result) =&gt; {
+            callback(err, parseInt(result, 10) === 1);
+        });
+    };
+
+    Poll.delete = function (pollId) {
+        Poll.setField(pollId, &#039;deleted&#039;, 1);
+    };
+
+    Poll.restore = function (pollId) {
+        Poll.setField(pollId, &#039;edited&#039;, 0);
+        Poll.setField(pollId, &#039;deleted&#039;, 0);
+    };
+
+    Poll.schedule = function (pollId) {
+        NodeBB.db.setAdd(&#039;polls:scheduled&#039;, pollId);
+        Scheduler.add(pollId);
+    };
+
+    Poll.getScheduled = function (callback) {
+        NodeBB.db.getSetMembers(&#039;polls:scheduled&#039;, callback);
+    };
+
+    Poll.hasEnded = function (pollId, callback) {
+        Poll.getField(pollId, &#039;ended&#039;, (err, result) =&gt; {
+            callback(err, parseInt(result, 10) === 1);
+        });
+    };
+
+    Poll.doesDisallowVoteUpdate = function (pollId, callback) {
+        Poll.getSettingsField(pollId, &#039;disallowVoteUpdate&#039;, (err, result) =&gt; {
+            callback(err, parseInt(result, 10) === 1);
+        });
+    };
+
+    Poll.doesAllowVoteUpdate = function (pollId, callback) {
+        Poll.getSettingsField(pollId, &#039;disallowVoteUpdate&#039;, (err, result) =&gt; {
+            callback(err, parseInt(result, 10) !== 1);
+        });
+    };
+
+    Poll.end = function (pollId) {
+        NodeBB.db.setRemove(&#039;polls:scheduled&#039;, pollId);
+        Poll.setField(pollId, &#039;ended&#039;, 1);
+    };
+
+    Poll.changePid = function (pollId, pid, callback) {
+        async.parallel([
+            function (next) {
+                Poll.setField(pollId, &#039;pid&#039;, pid, next);
+            },
+            function (next) {
+                NodeBB.db.setObjectField(`post:${pid}`, &#039;pollId&#039;, pollId, next);
+            },
+        ], callback);
+    };
+
+    Poll.changeTid = function (pollId, tid, callback) {
+        async.parallel([
+            function (next) {
+                Poll.setField(pollId, &#039;tid&#039;, tid, next);
+            },
+            function (next) {
+                NodeBB.db.setObjectField(`topic:${tid}`, &#039;pollId&#039;, pollId, next);
+            },
+        ], callback);
+    };
+
+    Poll.setField = function (pollId, field, value, callback) {
+        NodeBB.db.setObjectField(`poll:${pollId}`, field, value, callback);
+    };
+
+    Poll.setFields = function (pollId, fields, values, callback) {
+        NodeBB.db.setObjectFields(`poll:${pollId}`, fields, values, callback);
+    };
+
+    Poll.getField = function (pollId, field, callback) {
+        NodeBB.db.getObjectField(`poll:${pollId}`, field, callback);
+    };
+
+    Poll.getFields = function (pollId, fields, callback) {
+        NodeBB.db.getObjectFields(`poll:${pollId}`, fields, callback);
+    };
+
+    Poll.getSettingsField = function (pollId, field, callback) {
+        NodeBB.db.getObjectField(`poll:${pollId}:settings`, field, callback);
+    };
+
+    Poll.setSettingsField = function (pollId, field, value, callback) {
+        NodeBB.db.setObjectField(`poll:${pollId}:settings`, field, callback);
+    };
+}(exports));</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

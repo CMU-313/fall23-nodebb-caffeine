@@ -93,6 +93,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: plato-report
-          path: open report/index.html
+          path: report/index.html
 
 

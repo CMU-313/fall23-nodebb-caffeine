@@ -15,6 +15,7 @@
         "test": "npx tsc && nyc --reporter=html --reporter=text-summary mocha",
         "coverage": "nyc report --reporter=text-lcov > ./coverage/lcov.info",
         "coveralls": "nyc report --reporter=text-lcov | coveralls && rm -r coverage",
+        "install-plato": "npm install plato --save-dev",
         "plato": "plato -r -d report src"
     },
     "nyc": {

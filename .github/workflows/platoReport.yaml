@@ -82,7 +82,7 @@ jobs:
           node app --setup="${SETUP}" --ci="${CI}"
 
       - name: Generate Plato report using CLI
-        run: npx plato -d report src
+        run: plato -r -d report src
 
       - name: Archive Plato report
         uses: actions/upload-artifact@v2
